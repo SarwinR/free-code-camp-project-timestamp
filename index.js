@@ -18,13 +18,37 @@ app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 
-
 // your first API endpoint... 
 app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
-
+app.get("/api/:date?", function (req, res) {
+    // no args provided hence send current date
+    if(req.params.date == null){
+        let date = new Date()
+        res.json({"unix" : date.valueOf(),
+                 "utc": date.toUTCString() })
+    }
+    else{
+        // args provided
+        let stamp = null
+        if(isNaN(req.params.date)) // the arg is in the string format
+            stamp = req.params.date // keep the arg is in the string format
+        else
+            stamp = +req.params.date // convet the arg to an interger format
+        
+            
+        let date = new Date(stamp)
+        if (isNaN(date.getMonth())){ // cannot get the month component of the date hence not a valid date
+            res.json({ error : "Invalid Date" })
+        }
+        else {
+            res.json({"unix" : date.valueOf(),
+                 "utc": date.toUTCString() })
+        }
+    }
+})
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT, function () {
